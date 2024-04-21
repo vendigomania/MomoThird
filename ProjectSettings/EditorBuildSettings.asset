@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Dwarf Excellence - Scenes/Dwarf Excellence.unity
+    guid: abe6e941425687e43838f7fee8b124a1
   m_configObjects: {}
