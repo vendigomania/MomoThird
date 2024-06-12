@@ -7,6 +7,8 @@ public class GameRecklessBall : MonoBehaviour
 {
     [SerializeField] private Camera curCamera;
 
+    [SerializeField] private Image backgroundImage;
+
     [SerializeField] private GameObject startScreen;
     [SerializeField] private GameObject playScreen;
     [SerializeField] private Text scoreLable;
@@ -18,8 +20,13 @@ public class GameRecklessBall : MonoBehaviour
     [SerializeField] private GameObject gameRoot;
 
     [SerializeField] private Rigidbody2D ballRgb;
+    [SerializeField] private SpriteRenderer ballRenderer;
 
     [SerializeField] private Transform[] parts;
+
+    [SerializeField] private ParticleSystem boom;
+
+    [SerializeField] private Sprite[] backgroundSkins;
 
     int score = 0;
     bool isPlaying = false;
@@ -67,11 +74,17 @@ public class GameRecklessBall : MonoBehaviour
         }
     }
 
+    public void ChoiceBall(Sprite ballSkin)
+    {
+        ballRenderer.sprite = ballSkin;
+
+        Play();
+    }
+
     public void Play()
     {
         SoundsRecklessBall.Instance.Click();
 
-        startScreen.SetActive(false);
         playScreen.SetActive(true);
         loseScreen.SetActive(false);
 
@@ -95,13 +108,15 @@ public class GameRecklessBall : MonoBehaviour
         ballRgb.simulated = true;
         CollisionChecker.IsGrounded = false;
 
+        backgroundImage.sprite = backgroundSkins[Random.Range(0, backgroundSkins.Length)];
+
         isPlaying = true;
         gameRoot.SetActive(true);
     }
 
     public void Jump()
     {
-        if(CollisionChecker.IsGrounded)
+        if(CollisionChecker.IsGrounded && isPlaying)
         {
             ballRgb.AddForce(Vector2.up * 200f);
             SoundsRecklessBall.Instance.Jump();
@@ -138,9 +153,17 @@ public class GameRecklessBall : MonoBehaviour
     {
         SoundsRecklessBall.Instance.Lose();
 
+        boom.transform.position = ballRgb.transform.position;
+        boom.Play();
+
         ballRgb.simulated = false;
         isPlaying = false;
 
+        Invoke("ShowLose", 1f);
+    }
+
+    private void ShowLose()
+    {
         loseScreen.SetActive(true);
     }
 }
