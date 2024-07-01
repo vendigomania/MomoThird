@@ -12,6 +12,11 @@ public class DwarfExcellenceGame : MonoBehaviour
     [SerializeField] private GameObject endScreen;
     [SerializeField] private Text resultLable;
 
+    [SerializeField] private GameObject upgradesScreen;
+    [SerializeField] private Text quantityCostLable;
+    [SerializeField] private Text strengthCostLable;
+    [SerializeField] private Text coinsLable;
+
     [SerializeField] private GameObject ingameRoot;
 
     [SerializeField] private ParticleSystem[] golds;
@@ -30,12 +35,45 @@ public class DwarfExcellenceGame : MonoBehaviour
         set => PlayerPrefs.SetInt("Best", value);
     }
 
+    private int Coins
+    {
+        get => PlayerPrefs.GetInt("Coins", 0);
+        set
+        {
+            PlayerPrefs.SetInt("Coins", value);
+            coinsLable.text = value.ToString();
+        }
+    }
+
+    private int Quantity
+    {
+        get => PlayerPrefs.GetInt("Quantity", 1);
+        set {
+            PlayerPrefs.SetInt("Quantity", value);
+            quantityCostLable.text = value.ToString();
+        }
+    }
+
+    private int Strenght
+    {
+        get => PlayerPrefs.GetInt("Strenght", 1);
+        set
+        {
+            PlayerPrefs.SetInt("Strenght", value);
+            strengthCostLable.text = value.ToString();
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         Screen.orientation = ScreenOrientation.LandscapeLeft;
 
         DwarfExcellenceTrigger.OnLose += Lose;
+
+        coinsLable.text = Coins.ToString();
+        quantityCostLable.text = Quantity.ToString();
+        strengthCostLable.text = Strenght.ToString();
     }
 
     // Update is called once per frame
@@ -43,13 +81,33 @@ public class DwarfExcellenceGame : MonoBehaviour
     {
         if(isPlaying)
         {
-            lifeTime -= Time.deltaTime * (1f + score / 30f);
+            lifeTime -= Time.deltaTime * (1f + score / Mathf.Sqrt(Strenght) / 30f);
             lifeLine.fillAmount = lifeTime / 5f;
 
             if(lifeTime <= 0f)
             {
                 Lose();
             }
+        }
+    }
+
+    public void BuyQuantity()
+    {
+        if(Coins >= Quantity)
+        {
+            DwarfExcellenceSounds.Instance.Click();
+            Coins -= Quantity;
+            Quantity *= 2;
+        }
+    }
+
+    public void BuyStrenght()
+    {
+        if (Coins >= Strenght)
+        {
+            DwarfExcellenceSounds.Instance.Click();
+            Coins -= Strenght;
+            Strenght += 2;
         }
     }
 
@@ -95,8 +153,10 @@ public class DwarfExcellenceGame : MonoBehaviour
         isPlaying = true;
         lifeTime = Mathf.Min(5f, lifeTime + 1f);
 
-        score++;
+        score += Strenght;
         scoreLable.text = score.ToString();
+
+        Coins += Quantity;
 
         foreach (var gold in golds) gold.Play();
 
